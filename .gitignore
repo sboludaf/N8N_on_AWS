@@ -1,0 +1,35 @@
+# AWS Credentials
+.aws/
+*.pem
+*.key
+
+# CloudFormation
+*.zip
+.aws-sam/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.env
+.env.local
+.env.production
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
