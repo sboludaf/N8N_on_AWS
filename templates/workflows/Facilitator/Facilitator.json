@@ -1,0 +1,492 @@
+{
+  "name": "Facilitator",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Transcripción",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Titulo"
+            },
+            {
+              "fieldLabel": "Fecha",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Transcripción",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -448,
+        -32
+      ],
+      "id": "e9545aaf-5639-4f65-9544-a4ba9dc27605",
+      "name": "On form submission",
+      "webhookId": "c6b4130f-d8b5-47bb-a274-7c3da3c5bf24"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"event_title\": \"Titulo del evento\",\n  \"summary_bullets\": [ \"máx. 5 puntos, ≤20 palabras cada uno\" ],\n  \"decisions\": [\n    { \"decision\": \"\", \"owners\": [\"Nombre\"], \"date\": \"YYYY-MM-DD|null\" }\n  ],\n  \"action_items\": [\n    { \"task\": \"\", \"owner\": \"\", \"due_date\": \"YYYY-MM-DD|null\", \"priority\": \"alta|media|baja\" }\n  ],\n  \"milestones\": [\n    { \"name\": \"\", \"date\": \"YYYY-MM-DD\" }\n  ],\n  \"risks\": [\n    { \"risk\": \"\", \"mitigation\": \"\" }\n  ],\n  \"open_questions\": [ \"\" ],\n  \"participants\": [ \"Nombres detectados\" ],\n  \"meeting_date\": \"YYYY-MM-DD|null\",\n  \"confidence\": 0.0\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -148,
+        192
+      ],
+      "id": "1e8e6d24-a796-4a2b-a83b-4eda056e97b9",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Título de la reunión:\n{{ $json.Titulo }}\n\nTranscripción de reunión:\n {{ $json['Transcripción'] }}\n\nFecha: {{ $json.Fecha }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Eres un analista ejecutivo. Tu misión: condensar una transcripción de reunión en información útil para dirección y mandos intermedios.\n\nInstrucciones:\n1) Sé fiel al texto: no inventes datos. Si algo falta, usa \"TBD\".\n2) Prioriza acuerdos, fechas, responsables y próximos pasos.\n3) Escribe en español; estilo claro y conciso.\n4) Fechas en ISO-8601 (YYYY-MM-DD). Nombres tal como aparezcan.\n5) Devuelve ÚNICAMENTE JSON válido (sin prefacios, sin markdown).\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -224,
+        -32
+      ],
+      "id": "c258700d-db91-4aa5-957a-48abbe335274",
+      "name": "Normalizador",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.aisapereaude.es/mcp/trello",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        356,
+        -112
+      ],
+      "id": "ca8d78c1-9325-4377-b93c-d2ab5bec4569",
+      "name": "MCP Trello"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.aisapereaude.es/mcp/mail",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        356,
+        792
+      ],
+      "id": "a676682d-2c5f-48fc-8e57-decfc0f58485",
+      "name": "MCP Correo"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.aisapereaude.es/mcp/calendar",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        356,
+        -512
+      ],
+      "id": "efe0a741-1038-484c-9130-3fe785346ed9",
+      "name": "MCP Calendario"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        228,
+        -512
+      ],
+      "id": "ab3f9b95-030b-420c-b091-ce060c8d904e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Vx9PPqiWOMSB6OqJ",
+          "name": "AI Sapere Aude"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Del evento  {{ $json.output.event_title }}\n\nHan surgido los siguientes milestones:\n{{ JSON.stringify($json.output.milestones) }}\n\n\nCrea un evento en el calendario por cada uno de ellos.",
+        "options": {
+          "systemMessage": "Eres un agente de calendario con acceso a la herramienta calendar.create_event (MCP Google Calendar).\nTu objetivo es crear un evento fiel a los datos normalizados recibidos.\n\nComportamiento:\n\n- Revisa la información recibida.\n- De los milestones, crea un evento por cada una en el calendario.\n- El título del evento debe ser \n\"Título del evento - (Resumen del milestone)\"\"\n- La fecha del evento la encontrarás en cada uno de los milestones.\n- En la descripción del evento pon el nombre completo. \n\nNo confirmes acciones, directamente crea los eventos en el calendario."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        220,
+        -736
+      ],
+      "id": "7eeba4a1-6894-4c51-a048-ae3d92e1f178",
+      "name": "Generador de Eventos"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Título de la reunión:\n{{ $json.output.event_title }}\n\nEstas son las tareas \n\n{{ JSON.stringify($json.output.action_items) }}",
+        "options": {
+          "systemMessage": "Eres un agente especializado en la creación de tarjetas para tableros de Trello. \nTu objetivo es generar TÍTULO y DESCRIPCIÓN a partir del contexto recibido (reuniones, tareas, ideas, incidencias, etc.).\n\nReglas:\n1. Devuelve SIEMPRE un JSON válido con este formato exacto:\n{\n  \"card\": {\n    \"title\": \"\",\n    \"description\": \"\"\n  }\n}\n\n2. Sé claro, conciso y profesional.\n   - El título debe tener máximo 10 palabras.\n   - La descripción puede tener hasta 5 líneas.\n   - Usa español neutro.\n\n3. El título debe empezar con un verbo o sustantivo que denote acción o tarea (ej.: “Preparar informe trimestral”, “Seguimiento proyecto IA”).\n4. La descripción debe incluir:\n   - Contexto breve.\n   - Objetivo o resultado esperado.\n   - Responsable si aparece en el texto original.\n   - Fecha o plazo si se menciona.\n5. No inventes datos. Si algo falta, usa \"TBD\".\n6. No incluyas código, Markdown ni texto adicional fuera del JSON.\n7. Sé coherente con el tono de gestión de proyectos (ni coloquial ni excesivamente formal).\n\nEjemplo de salida:\n{\n  \"card\": {\n    \"title\": \"Revisión de propuesta comercial\",\n    \"description\": \"Analizar el documento entregado por el proveedor y preparar feedback para el equipo de ventas antes del 2025-10-30.\"\n  }\n}\n\nTienes una Tool MCP para crear las tarjetas en Trello"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        220,
+        -336
+      ],
+      "id": "89301d46-dd06-438f-8972-3f76750e67ec",
+      "name": "Generador de tarjetas en Trello"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Título de la reunión:\n{{ $json.output.event_title }}\n\nEstos son los Bullets\n\n{{ JSON.stringify($json.output.summary_bullets) }}\n\nEstas son las decisiones\n\n{{ JSON.stringify($json.output.decisions) }}\n\nEstos son los riesgos\n\n{{ JSON.stringify($json.output.risks) }}",
+        "options": {
+          "systemMessage": "Eres un asistente conectado a una herramienta MCP que genera presentaciones de diapositivas. Recibirás un texto libre que indica el resumen de la reunión. \n\nTu tarea es procesar el texto y extraer automáticamente un resumen con el título, los puntos relevantes, fechas y riesgos en un único párrafo resumen.\n\nDebes interpretar el contenido aunque esté incompleto, ambiguo o mal estructurado, y generar una salida completa. No expliques tus razonamientos ni describas pasos. No incluyas texto adicional fuera del JSON.\n\nLa herramienta MCP debe recibir:\n- Todo en una sola línea, sin saltos de línea, sin espacios innecesarios, sin comentarios, sin markdown, sin backticks, sin texto adicional antes o después. \n- Solo los caracteres estrictamente válidos de un JSON estándar.\n\nTu flujo es directo: recibes texto → extraes title, bullets, decisions, risks → invocas la herramienta MCP. \n\nNo pidas más datos al usuario y no ejecutes pasos intermedios visibles."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        220,
+        64
+      ],
+      "id": "fc6f48d5-9a10-43c3-806a-9036897f2dc7",
+      "name": "Generador de PPTs"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Título de la reunión:\n{{ $json.output.event_title }}\n\nEstos son los Bullets\n\n{{ JSON.stringify($json.output.summary_bullets) }}\n\nEstas son las decisiones\n\n{{ JSON.stringify($json.output.decisions) }}\n\nEstos son los riesgos\n\n{{ JSON.stringify($json.output.risks) }}",
+        "options": {
+          "systemMessage": "Eres un agente de comunicación ejecutiva con acceso a la herramienta email.send_message.\nTu objetivo es enviar un correo conciso con el resumen de la reunión. \n\nComportamiento:\n- Revisa la información obtenida.\n- Construye el correo en texto plano con esta estructura:\nAsunto: Título de la reunión\nCuerpo:\n   - Saludo breve.\n   - Summary bullets obtenidos.\n   - Indicación de las decisiones tomadas.\n   - Riesgos en formato tabla.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        220,
+        568
+      ],
+      "id": "6296d60f-5c50-43ca-bff9-8df4b3ea3fbe",
+      "name": "Generador de Correos"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.aisapereaude.es/mcp/gamma",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        356,
+        288
+      ],
+      "id": "b930c7ab-ead3-4e1b-b663-3305d0287834",
+      "name": "MCP Gamma"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        228,
+        -112
+      ],
+      "id": "7ea3c246-8073-4d7d-a1b8-c55a5f0b9c8b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "Vx9PPqiWOMSB6OqJ",
+          "name": "AI Sapere Aude"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        228,
+        288
+      ],
+      "id": "dfad1eaf-f769-4d3a-b428-c48a14306b67",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "Vx9PPqiWOMSB6OqJ",
+          "name": "AI Sapere Aude"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        228,
+        792
+      ],
+      "id": "cc02932b-62f7-4ac5-9905-ed159b75fbd3",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "Vx9PPqiWOMSB6OqJ",
+          "name": "AI Sapere Aude"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        240
+      ],
+      "id": "4f0978f9-e9f9-4d62-be0d-706ebd3c8c29",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Gp6QGnXBg6ePp8dN",
+          "name": "AI Sapere Aude"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Normalizador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Normalizador",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizador": {
+      "main": [
+        [
+          {
+            "node": "Generador de Eventos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generador de tarjetas en Trello",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generador de PPTs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generador de Correos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Trello": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generador de tarjetas en Trello",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Correo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generador de Correos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Calendario": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generador de Eventos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generador de Eventos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generador de PPTs": {
+      "main": [
+        []
+      ]
+    },
+    "MCP Gamma": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generador de PPTs",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generador de tarjetas en Trello",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generador de PPTs",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generador de Correos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Normalizador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c973ab1f-c787-474c-a2ab-c5be29c01131",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93df593494d82c048754253837c2982862145727bdb1051c58d20d6f39d3de73"
+  },
+  "id": "ZRqLS0idHX5aoWi7",
+  "tags": []
+}

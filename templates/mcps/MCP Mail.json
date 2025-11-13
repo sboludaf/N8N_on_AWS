@@ -1,0 +1,69 @@
+{
+  "name": "MCP Mail",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mail"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "76149256-b200-42ce-994c-e05b3c783a7f",
+      "name": "MCP Server Trigger",
+      "webhookId": "cde7e7c4-fe6d-4d9d-b181-5aead3198547"
+    },
+    {
+      "parameters": {
+        "fromEmail": "hola@aisapereaude.com",
+        "toEmail": "hola@aisapereaude.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailFormat": "text",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSendTool",
+      "typeVersion": 2.1,
+      "position": [
+        176,
+        224
+      ],
+      "id": "80bddfc3-0a85-40be-9e16-61f1deb930c1",
+      "name": "Send Email",
+      "webhookId": "8a111ac6-7be8-4ebd-965e-8cb8c3f270ab",
+      "credentials": {
+        "smtp": {
+          "id": "1zDQjY3yBTwkRGf7",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "205f3502-7e50-4111-8dbc-738dc44e3d25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93df593494d82c048754253837c2982862145727bdb1051c58d20d6f39d3de73"
+  },
+  "id": "4UxKCwBny10QLAyW",
+  "tags": []
+}

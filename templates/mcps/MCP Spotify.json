@@ -1,0 +1,163 @@
+{
+  "name": "MCP Spotify",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "track",
+        "operation": "search",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Keyword', ``, 'string') }}",
+        "limit": 2,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        32,
+        176
+      ],
+      "id": "ad0e1ec5-cb67-4a43-8482-7bd00ac09372",
+      "name": "Search Song",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Plx9wOwzP5wFAnS7",
+          "name": "Spotify Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get the currently playing track in Spotify",
+        "operation": "currentlyPlaying"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        368,
+        112
+      ],
+      "id": "6b4db596-5eab-4559-be08-a38612c68e9c",
+      "name": "Current Song",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Plx9wOwzP5wFAnS7",
+          "name": "Spotify Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "spotify"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -80
+      ],
+      "id": "6b5cf9e0-1a91-496a-8b56-d73d1a87c685",
+      "name": "MCP Server Trigger",
+      "webhookId": "225672c4-77f5-4a35-8ea1-7f12a87721f0"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Skip to the next track in Spotify",
+        "operation": "nextSong"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        496,
+        32
+      ],
+      "id": "55378162-fc2a-4bb7-b855-b824e31e9b17",
+      "name": "Next Song",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Plx9wOwzP5wFAnS7",
+          "name": "Spotify Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Add a song to a queue in Spotify",
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Track_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        208,
+        192
+      ],
+      "id": "9549131d-1bca-4c19-a468-969bcd049693",
+      "name": "Add Song To Queue",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Plx9wOwzP5wFAnS7",
+          "name": "Spotify Personal"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Search Song": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current Song": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Song To Queue": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next Song": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "43675002-b4db-4235-9bd9-0e771455af9c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93df593494d82c048754253837c2982862145727bdb1051c58d20d6f39d3de73"
+  },
+  "id": "LgjSwYV3PecVd4hj",
+  "tags": []
+}

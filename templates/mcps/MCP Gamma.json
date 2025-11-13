@@ -1,0 +1,74 @@
+{
+  "name": "MCP Gamma",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gamma"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "523e4518-f5e8-4ac3-9546-ad1abfaf0001",
+      "name": "MCP Server Trigger",
+      "webhookId": "b58c38ff-377c-4b95-a4ef-e44850a9bc7a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://public-api.gamma.app/v1.0/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "sk-gamma-Q5y5znslx9cr1se0qRtxaoNlQHE9jOaYlCBZOQsdA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputText\": \"{{ $fromAI('SLIDE_SUMMARY_IDEA', '', 'string') }}\",\n  \"textMode\": \"generate\",\n  \"format\": \"presentation\",\n  \"themeId\": \"0avqig1udaboxis\",\n  \"numCards\": 5,\n  \"cardSplit\": \"auto\",\n  \"additionalInstructions\": \"Make the titles catchy\",\n  \"folderIds\": [\"k47cgw9apuzw3t7\"],\n  \"textOptions\": {\n    \"amount\": \"detailed\",\n    \"tone\": \"professional, inspiring\",\n    \"audience\": \"outdoors enthusiasts, adventure seekers\",\n    \"language\": \"es\"\n  },\n  \"imageOptions\": {\n    \"source\": \"aiGenerated\",\n    \"model\": \"flux-1-quick\",\n    \"style\": \"photorealistic\"\n  },\n  \"cardOptions\": {\n    \"dimensions\": \"fluid\",\n    \"headerFooter\": {\n      \"topRight\": {\n        \"type\": \"image\",\n        \"source\": \"themeLogo\",\n        \"size\": \"xl\"\n      },\n      \"bottomRight\": {\n        \"type\": \"cardNumber\"\n      },\n      \"hideFromFirstCard\": true,\n      \"hideFromLastCard\": false\n    }\n  },\n  \"sharingOptions\": {\n    \"workspaceAccess\": \"view\",\n    \"externalAccess\": \"view\",\n    \"emailOptions\": {\n      \"recipients\": [\"hola@aisapereaude.com\"],\n      \"access\": \"comment\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        96,
+        208
+      ],
+      "id": "8dc7c5ca-be1e-45e0-b4d5-47a3078243b5",
+      "name": "Generate PPT"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Generate PPT": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "90e79baf-5e2e-41f9-b05a-2299da32e192",
+  "meta": {
+    "instanceId": "93df593494d82c048754253837c2982862145727bdb1051c58d20d6f39d3de73"
+  },
+  "id": "TfhyJqwihfAMv3Ef",
+  "tags": []
+}

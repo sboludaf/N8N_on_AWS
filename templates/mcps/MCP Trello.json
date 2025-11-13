@@ -1,0 +1,66 @@
+{
+  "name": "MCP Trello",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "trello"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b9cd12f9-6a72-4b19-81fd-c745e7ffb074",
+      "name": "MCP Server Trigger",
+      "webhookId": "2fcd5a40-d949-4af5-880c-d794bd4d7c75"
+    },
+    {
+      "parameters": {
+        "listId": "=6914c5e801c40c4c04ab82a1",
+        "name": "={{ $fromAI('Card_Name', ``, 'string') }}",
+        "description": "={{ $fromAI('Card_Description', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trelloTool",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "1fd8789e-2429-4dda-a330-68152d5bfa81",
+      "name": "Create a card in Trello",
+      "credentials": {
+        "trelloApi": {
+          "id": "0dkdDpMSOgW8P5oi",
+          "name": "Trello AI Sapere Aude"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create a card in Trello": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62eba317-1a24-4aa7-914f-24aff513dc21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93df593494d82c048754253837c2982862145727bdb1051c58d20d6f39d3de73"
+  },
+  "id": "x8sNkxvQRRfXRdje",
+  "tags": []
+}
