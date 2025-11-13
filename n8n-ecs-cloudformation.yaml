@@ -187,34 +187,13 @@ Resources:
           Value: !Sub 'N8N-${InstanceName}-EFS-SG'
 
   # Security Group Rules to avoid circular dependency
-  ECSToEFSRule:
+  ECSAllTrafficEgressRule:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
       GroupId: !Ref ECSSecurityGroup
-      IpProtocol: tcp
-      FromPort: 2049
-      ToPort: 2049
-      DestinationSecurityGroupId: !Ref EFSSecurityGroup
-
-  ECSHTTPSEgressRule:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref ECSSecurityGroup
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
+      IpProtocol: -1
       CidrIp: 0.0.0.0/0
-      Description: 'HTTPS outbound for Docker image pulls from docker.n8n.io'
-
-  ECSHTTPEgressRule:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref ECSSecurityGroup
-      IpProtocol: tcp
-      FromPort: 80
-      ToPort: 80
-      CidrIp: 0.0.0.0/0
-      Description: 'HTTP outbound for package downloads'
+      Description: 'Allow all outbound traffic'
 
   EFSFromECSRule:
     Type: AWS::EC2::SecurityGroupIngress
