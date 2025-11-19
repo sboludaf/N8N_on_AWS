@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación de Albaranes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            max-width: 450px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        .success {
+            color: #28a745;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Subir Albarán</h1>
+        <form id="albaranForm">
+            <label for="factura">Nombre de la Factura:</label>
+            <input type="text" id="factura" name="factura" required>
+
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" required>
+
+            <label for="imagen">Subir Imagen (JPG o PNG):</label>
+            <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png" required>
+
+            <button type="submit">🚀 Subir Albarán</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+        document.getElementById('albaranForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = '';
+            messageDiv.textContent = '';
+
+            const formData = new FormData(this);
+
+            fetch('https://n8n.aisapereaude.es/webhook-test/upload_albaran', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    messageDiv.className = 'success';
+                    messageDiv.textContent = '✅ Albarán subido correctamente.';
+                    this.reset();
+                    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+                } else {
+                    messageDiv.className = 'error';
+                    messageDiv.textContent = '❌ Error al subir el albarán.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.className = 'error';
+                messageDiv.textContent = '❌ Error de conexión.';
+            });
+        });
+    </script>
+</body>
+</html>
